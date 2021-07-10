@@ -16,18 +16,18 @@ namespace Infrastructure
             _context = context;
         }
 
-        public async Task AddNewGuild(ulong id , string prefix) {
+        public async Task AddNewGuild(long id , string prefix) {
            _context.Add(new Server { Id = id, Prefix = prefix });
            await _context.SaveChangesAsync();
         }
 
-        public async Task RemoveGuild(ulong id) {
+        public async Task RemoveGuild(long id) {
             var server = await _context.Servers.FindAsync(id);
             _context.Remove(server);
             await _context.SaveChangesAsync();
         }
 
-        public async Task ModifyGuildPrefix(ulong id, string prefix) 
+        public async Task ModifyGuildPrefix(long id, string prefix) 
         {
             var server = await _context.Servers.FindAsync(id);
 
@@ -41,7 +41,7 @@ namespace Infrastructure
             await _context.SaveChangesAsync();
         }
 
-        public async Task<string> GetGuildPrefix(ulong id) {
+        public async Task<string> GetGuildPrefix(long id) {
             var prefix = await _context.Servers.Where(x => x.Id == id).Select(x => x.Prefix).FirstOrDefaultAsync();
             return await Task.FromResult(prefix);
         }

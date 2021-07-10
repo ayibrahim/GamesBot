@@ -79,5 +79,26 @@ namespace Infrastructure
                 context.Database.ExecuteSqlRaw(commandText, new SqlParameter("ServerID", id.ToString()), new SqlParameter("QuestionID", questionId.ToString()));
             }
         }
+
+        public async Task<bool> checkQuestionExists(string Question , string Lang)
+        {
+            var questionID = await _context.Questions.Where(x => x.Lang == Lang).Where(x => x.strQuestion == Question).Select(x => x.QuestionsID).FirstOrDefaultAsync();
+            if (questionID == 0)
+            {
+                return await Task.FromResult(false);
+            }
+            else {
+                return await Task.FromResult(true);
+            }
+           
+        }
+        public async Task insertNewQuestion(string strQuestion , string Lang)
+        {
+            using (var context = new MainContext())
+            {
+                var commandText = "Insert INTO Questions(strQuestion,Lang) Values(@strQuestion, @Lang)";
+                context.Database.ExecuteSqlRaw(commandText, new SqlParameter("strQuestion", strQuestion), new SqlParameter("Lang", Lang));
+            }
+        }
     }
 }

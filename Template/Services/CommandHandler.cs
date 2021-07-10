@@ -42,13 +42,13 @@ namespace Template.Services
 
         private async Task OnBotLeftGuild(SocketGuild arg)
         {
-            await _servers.RemoveGuild((arg.Id));
+            await _servers.RemoveGuild((long)(arg.Id));
             //Bot Left server
         }
 
         private async Task OnBotJoinedGuild(SocketGuild arg)
         {
-            await _servers.AddNewGuild((arg.Id) , _config["prefix"]);
+            await _servers.AddNewGuild((long)(arg.Id) , _config["prefix"]);
             //Bot Joined server
         }
 
@@ -65,7 +65,7 @@ namespace Template.Services
             if (message.Source != MessageSource.User) return;
 
             var argPos = 0;
-            var prefix = await _servers.GetGuildPrefix((message.Channel as SocketGuildChannel).Guild.Id) ?? _config["prefix"];
+            var prefix = await _servers.GetGuildPrefix((long)(message.Channel as SocketGuildChannel).Guild.Id) ?? _config["prefix"];
             if (!message.HasStringPrefix(prefix, ref argPos) && !message.HasMentionPrefix(_client.CurrentUser, ref argPos)) return;
 
             var context = new SocketCommandContext(_client, message);
