@@ -37,7 +37,14 @@ namespace Template.Services
             _client.JoinedGuild += OnBotJoinedGuild;
             _client.LeftGuild += OnBotLeftGuild;
             _service.CommandExecuted += OnCommandExecuted;
+            _client.Ready += StatusAsync;
             await _service.AddModulesAsync(Assembly.GetEntryAssembly(), _provider);
+        }
+
+        public async Task StatusAsync()
+        {
+            var status = $"Listening To ##help";
+            await _client.SetGameAsync(status, "https://www.twitch.tv/", ActivityType.Streaming);
         }
 
         private async Task OnBotLeftGuild(SocketGuild arg)

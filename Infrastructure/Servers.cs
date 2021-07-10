@@ -17,7 +17,7 @@ namespace Infrastructure
         }
 
         public async Task AddNewGuild(long id , string prefix) {
-           _context.Add(new Server { Id = id, Prefix = prefix });
+           _context.Add(new Server { Id = id, Prefix = prefix , Lang = "ar"});
            await _context.SaveChangesAsync();
         }
 
@@ -44,6 +44,28 @@ namespace Infrastructure
         public async Task<string> GetGuildPrefix(long id) {
             var prefix = await _context.Servers.Where(x => x.Id == id).Select(x => x.Prefix).FirstOrDefaultAsync();
             return await Task.FromResult(prefix);
+        }
+
+
+        public async Task ModifyGuildLang(long id, string lang)
+        {
+            var server = await _context.Servers.FindAsync(id);
+
+            if (server == null)
+            {
+                _context.Add(new Server { Id = id, Lang = lang });
+            }
+            else
+            {
+                server.Lang = lang;
+            }
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<string> GetGuildLang(long id)
+        {
+            var lang = await _context.Servers.Where(x => x.Id == id).Select(x => x.Lang).FirstOrDefaultAsync();
+            return await Task.FromResult(lang);
         }
     }
 }

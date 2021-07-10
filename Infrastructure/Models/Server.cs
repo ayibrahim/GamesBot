@@ -10,5 +10,6 @@ namespace Infrastructure.Models
         [Key]
         public long Id { get; set; }
         public string Prefix {get; set;}
+        public string Lang { get; set; }
     }
 }

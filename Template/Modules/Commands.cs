@@ -12,13 +12,13 @@ using Discord;
 
 namespace Template.Modules
 {
-    public class CommandModule : ModuleBase<SocketCommandContext>
+    public class Commands : ModuleBase<SocketCommandContext>
     {
-        private readonly ILogger<CommandModule> _logger;
+        private readonly ILogger<Commands> _logger;
         private readonly Servers _servers;
         private readonly Questions _questions;
         private readonly IConfiguration _config;
-        public CommandModule(ILogger<CommandModule> logger, Servers servers, IConfiguration config, Questions questions)
+        public Commands(ILogger<Commands> logger, Servers servers, IConfiguration config, Questions questions)
         {
             _logger = logger;
             _servers = servers;
@@ -27,13 +27,16 @@ namespace Template.Modules
         }
 
 
+
         [Command("ping")]
+        [Summary("Checks bot reply time.")]
         public async Task PingAsync()
         {
             await ReplyAsync("Pong!");
         }
 
         [Command("prefix")]
+        [Summary("Returns prefix of guild and lets you change your prefix.")]
         [RequireUserPermission(Discord.GuildPermission.Administrator)]
         public async Task Prefix(string prefix = null)
         {
@@ -52,15 +55,36 @@ namespace Template.Modules
             await ReplyAsync($"The prefix has been changed to `{prefix}`.");
         }
 
+        [Command("lang")]
+        [Summary("Returns language of guild and lets you change language (ar , en).")]
+        [RequireUserPermission(Discord.GuildPermission.Administrator)]
+        public async Task Language(string lang = null)
+        {
+            List<string> languages = new List<string>() { "ar", "en" };
+            if (lang == null)
+            {
+                var guildLang = await _servers.GetGuildLang((long)Context.Guild.Id) ?? "ar";
+                await ReplyAsync($"The current Language of this bot is `{guildLang}`.");
+                return;
+            }
+            if (languages.Contains(lang.ToLower()) == false)
+            {
+                await ReplyAsync($"The value for the language parameter you selected is invalid , valid options include (ar , en).");
+                return;
+            }
+            await _servers.ModifyGuildLang((long)Context.Guild.Id, lang);
+            await ReplyAsync($"The Language has been changed to `{lang}`.");
+        }
+
         [Command("questions")]
-        [Summary("Returns a question for a user.")]
+        [Summary("Returns a question")]
         [Alias("q", "qs", "كت")]
         public async Task Questions(string lang = null)
         {
             List<string> languages = new List<string>() { "ar", "en" };
             if (lang == null)
             {
-                lang = "ar";
+                lang = await _servers.GetGuildLang((long)Context.Guild.Id) ?? "ar";
             }
             else {
                 if (languages.Contains(lang.ToLower()) == false) {
@@ -99,45 +123,5 @@ namespace Template.Modules
         }
 
 
-        [Command("newQuestion")]
-        [Summary("Add new question to DB.")]
-        [Alias("nq")]
-        [RequireUserPermission(Discord.GuildPermission.Administrator)]
-        public async Task AddQuestion(string Lang = null, [Remainder]string strQuestion = null)
-        {
-            if (Context.Guild.Id == 481566772206632970) {
-                List<string> languages = new List<string>() { "ar", "en" };
-                if (Lang == null)
-                {
-                    await ReplyAsync($"Please specify Language for the question you are adding.");
-                    return;
-                }
-                else if (strQuestion == null)
-                {
-                    await ReplyAsync($"Please specify your Quesiton after the language.");
-                    return;
-                }
-                else
-                {
-                    if (languages.Contains(Lang.ToLower()) == false)
-                    {
-                        await ReplyAsync($"The value for the language parameter you selected is invalid , valid options include (ar , en).");
-                        return;
-                    }
-                }
-                bool isExist = await _questions.checkQuestionExists(strQuestion, Lang);
-                if (isExist == true)
-                {
-                    await ReplyAsync($"The question you are inserting already exists for the following language , Please try again.");
-                    return;
-                }
-                else
-                {
-                    await _questions.insertNewQuestion(strQuestion, Lang);
-                    await ReplyAsync($"Your Question has been added.");
-                    return;
-                }
-            }
-        }
     }
 }
